@@ -23,5 +23,5 @@ run: main
 	./main
 
 clean:
-	find . -type f ! -name 'makefile' -delete
+	find . -type f ! -name 'makefile' ! -name '.gitignore' -delete
 	find . -type d -delete
