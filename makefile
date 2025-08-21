@@ -23,5 +23,4 @@ run: main
 	./main
 
 clean:
-	find . -type f ! -name 'makefile' -delete
-	find . -type d -delete
+	rm -rf $(BUILDDIR)/*.o $(BUILDDIR)/*.a $(BUILDDIR)/*/*.o $(BUILDDIR)/*/*.a main

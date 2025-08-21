@@ -11,13 +11,9 @@ int main() {
   // BSRule carpet_rule({2, 3, 4, 5}, {});
   BSRule bs_gol_rule(6152);
   // BSRule bs_gol_rule(6162);
-
   Simulation simulation(size, make_shared<BSRule>(bs_gol_rule), 0.1);
-  WindowSettings settings = DEFAULT_SETTINGS;
-  settings.show_grid = true;
   SimulationWindow window({1000, 1000}, make_shared<Simulation>(simulation));
 
-  cout<<window.isOpen()<<endl;
   while (window.isOpen()) {
     sf::Event event;
     while (window.pollEvent(event)) {
