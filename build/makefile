@@ -1,5 +1,5 @@
 CXX = g++
-CPPFLAGS = -Wall -pedantic -I$(SOURCEDIR)
+CPPFLAGS = -Wall -g -pedantic -I$(SOURCEDIR)
 INC_SFML = -lsfml-graphics -lsfml-window -lsfml-system
 
 PROJDIR := $(realpath $(CURDIR)/..)
