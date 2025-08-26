@@ -7,7 +7,7 @@
 
 int main() {
   srand(time(NULL));
-  size_vector size = {100, 150};
+  size_vector size = {100, 100};
   // BSRule carpet_rule({2, 3, 4, 5}, {});
   BSRule bs_gol_rule(6152);
   // BSRule bs_gol_rule(6162);

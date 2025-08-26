@@ -21,6 +21,7 @@ static sf::Color get_color(bool value, bool loaded, size_t age) {
 SimulationRenderer::SimulationRenderer(shared_ptr<Simulation> simulation,
                                        shared_ptr<IVertexArrayBuilder> builder)
     : simulation(simulation),
+        builder(builder),
       segment_size(builder->get_segment_size()),
       segment_count(simulation->get_cell_count()) {
   color_buffer_index = 0;
@@ -53,4 +54,11 @@ void SimulationRenderer::push_color_buffer() {
         get_color(simulation->value_buffer[i], simulation->loaded_buffer[i],
                   simulation->age_buffer[i]);
   }
+}
+
+sf::Vector2f SimulationRenderer::get_simulation_size() const{
+    float width = simulation->get_size()[0];
+    float height = simulation->get_size()[1];
+
+    return sf::Vector2f(width*builder->get_x_ratio(), height * builder->get_y_ratio());
 }

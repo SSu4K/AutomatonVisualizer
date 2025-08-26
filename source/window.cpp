@@ -86,7 +86,7 @@ SimulationWindow::SimulationWindow(const sf::Vector2i window_size,
     : sf::RenderWindow(sf::VideoMode(window_size.x, window_size.y),
                        "Simulation"),
       simulation(simulation),
-      renderer(simulation, make_shared<SquareGridBuilder>()),
+      renderer(simulation, make_shared<TriangleGridBuilder>()),
       settings(settings),
       frame_counter(0),
       do_update_view(false),
@@ -103,8 +103,12 @@ SimulationWindow::SimulationWindow(const sf::Vector2i window_size,
     }
   }
   this->setFramerateLimit(settings.framerate);
-  sf::Vector2i simulation_size = {(int)simulation->get_size()[0],
-                                  (int)simulation->get_size()[1]};
+
+//   sf::Vector2i simulation_size = {(int)simulation->get_size()[0],
+//                                   (int)simulation->get_size()[1]};
+
+  sf::Vector2f simulation_size = renderer.get_simulation_size();
+  std::cout << simulation_size.x << ", " << simulation_size.y << std::endl;
   float w_ratio = simulation_size.x / float(window_size.x);
   float h_ratio = simulation_size.y / float(window_size.y);
 

@@ -8,8 +8,8 @@
 
 class SimulationRenderer{
     protected:
-    shared_ptr<IVertexArrayBuilder> builder;
     shared_ptr<Simulation> simulation;
+    shared_ptr<IVertexArrayBuilder> builder;
     size_t segment_size;
     size_t segment_count;
 
@@ -31,4 +31,5 @@ class SimulationRenderer{
     ~SimulationRenderer();
     void update_vertex_array(double t);
     void push_color_buffer();
+    sf::Vector2f get_simulation_size() const;
 };
