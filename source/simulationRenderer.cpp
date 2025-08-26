@@ -1,0 +1,51 @@
+#include "simulationRenderer.h"
+
+static const Gradient g1({sf::Color::Yellow, sf::Color::Red, sf::Color::Magenta,
+                    sf::Color::Yellow},
+                   PERIODIC);
+static const QuantizedGradient g2(g1, 20);
+
+static const sf::Color GRID_COLOR = sf::Color(0, 0, 0);
+
+static sf::Color get_color(bool value, bool loaded, size_t age) {
+  if (value && loaded) {
+    return sf::Color::White;
+  }
+  if (loaded) {
+    return sf::Color::Black;
+  }
+
+  return g2.get_color_by_int(age);
+}
+
+void SimulationRenderer::update_vertex_array(double t) {
+  for (size_t i = 0; i < segment_count; i++) {
+    sf::Color color = interp_func(color_buffer[!color_buffer_index][i],
+                                  color_buffer[color_buffer_index][i], t);
+    for (size_t j = 0; j < segment_size; j++) {
+      vertex_array[segment_size * i + j].color = color;
+    }
+  }
+}
+
+SimulationRenderer::SimulationRenderer(shared_ptr<Simulation> simulation,
+                                       shared_ptr<IVertexArrayBuilder> builder)
+    : simulation(simulation),
+      segment_size(builder->get_segment_size()),
+      segment_count(simulation->get_cell_count()) {
+  color_buffer_index = 0;
+  color_buffer[0] = new sf::Color[segment_count]();
+  color_buffer[1] = new sf::Color[segment_count]();
+
+  vertex_array = builder->build(*simulation);
+  grid = builder->build_grid(*simulation, GRID_COLOR);
+}
+
+void SimulationRenderer::push_color_buffer() {
+  color_buffer_index = !color_buffer_index;
+  for (size_t i = 0; i < segment_count; i++) {
+    color_buffer[color_buffer_index][i] =
+        get_color(simulation->value_buffer[i], simulation->loaded_buffer[i],
+                  simulation->age_buffer[i]);
+  }
+}

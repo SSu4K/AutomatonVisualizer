@@ -19,8 +19,8 @@ class Simulation {
 
   void step();
   void step(size_t time);
-  size_vector get_size();
-  size_t get_cell_count();
+  size_vector get_size() const;
+  size_t get_cell_count() const;
 
   void reset();
 };

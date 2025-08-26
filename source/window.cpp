@@ -1,7 +1,7 @@
 #include "window.h"
 #include <iostream>
 
-static Gradient g1({sf::Color::Yellow, sf::Color::Red, sf::Color::Cyan,
+static Gradient g1({sf::Color::Yellow, sf::Color::Red, sf::Color::Magenta,
                     sf::Color::Yellow},
                    PERIODIC);
 static QuantizedGradient g2(g1, 20);
@@ -159,7 +159,7 @@ void SimulationWindow::step() {
 
   if (!paused) {
     double t = double(frame_counter) / frames_per_step;
-    update_vertex_array(t * t);
+    update_vertex_array(t);
   }
 
   clear();

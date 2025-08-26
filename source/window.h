@@ -33,7 +33,7 @@ class SimulationWindow : public sf::RenderWindow {
   sf::VertexArray grid;
 
   vector<sf::Color> old_color_array;
-  vector<sf::Color> new_color_array;
+  vector<sf::Color> new_color_array; 
 
   InputSystem inputSystem;
 
@@ -46,7 +46,7 @@ class SimulationWindow : public sf::RenderWindow {
   Body::Body view_body;
 
   function<sf::Color(const sf::Color&, const sf::Color&, float)> interp_func =
-      utils::powrp<3>;
+      utils::powrp<6>;
 
   bool do_update_view;
   bool do_redraw;
@@ -59,7 +59,6 @@ class SimulationWindow : public sf::RenderWindow {
   void create_vertex_array();
   void update_vertex_array(double t);
   void handle_input();
-  void redraw();
 
  public:
   SimulationWindow() = default;

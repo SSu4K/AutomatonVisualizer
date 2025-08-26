@@ -49,11 +49,11 @@ void Simulation::step(size_t time) {
   update_buffers();
 }
 
-size_vector Simulation::get_size() {
+size_vector Simulation::get_size() const{
   return automaton.get_size();
 }
 
-size_t Simulation::get_cell_count() {
+size_t Simulation::get_cell_count() const{
   return cell_count;
 }
 
