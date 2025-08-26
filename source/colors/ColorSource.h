@@ -6,21 +6,21 @@ using namespace sf;
 
 class ColorSource{
     public:
-    virtual Color get_color_by_float(double t) = 0;
-    virtual Color get_color_by_int(int t) = 0;
-    virtual Color get_color() = 0;
+    virtual Color get_color_by_float(double t) const = 0;
+    virtual Color get_color_by_int(int t) const = 0;
+    virtual Color get_color() const = 0;
 
     virtual ~ColorSource() = default;
 };
 
-class FlatColor{
+class FlatColor: public ColorSource{
     Color color;
     public:
 
     FlatColor(Color);
-    Color get_color_by_float(double t);
-    Color get_color_by_int(int t);
-    Color get_color();
+    Color get_color_by_float(double t) const override;
+    Color get_color_by_int(int t) const override;
+    Color get_color() const override;
 };
 
 #endif

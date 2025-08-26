@@ -2,11 +2,11 @@
 #include <math.h>
 #include "utils.hpp"
 
-GradnientMode GradientBase::get_mode(){
+GradnientMode GradientBase::get_mode() const{
     return this->mode;
 }
 
-double GradientBase::transform_t_double(double t){
+double GradientBase::transform_t_double(double t) const{
     switch (mode){
     case CLAMPED:
         return utils::clamp(t, 0, 1);
@@ -50,7 +50,7 @@ Gradient::Gradient(vector<ColorNode> nodes, GradnientMode mode){
     }
 }
 
-Color Gradient::get_color_by_float(double t){
+Color Gradient::get_color_by_float(double t) const{
     t = transform_t_double(t);
     if(t < 0) return default_color;
     if(t==0) return nodes[0].color;
@@ -67,11 +67,11 @@ Color Gradient::get_color_by_float(double t){
     return nodes[nodes.size()-1].color;
 }
 
-Color Gradient::get_color_by_int(int t){
+Color Gradient::get_color_by_int(int t) const{
     return nodes[0].color;
 }
 
-Color Gradient::get_color(){
+Color Gradient::get_color() const{
     return nodes[0].color;
 }
 
@@ -84,7 +84,7 @@ QuantizedGradient::QuantizedGradient(Gradient source_gradient, size_t range): ra
     }
 }
 
-size_t QuantizedGradient::transform_t_int(size_t t ){
+size_t QuantizedGradient::transform_t_int(size_t t ) const{
     switch (mode){
     case CLAMPED:
         return utils::clampi(t, 0, range-1);
@@ -98,7 +98,7 @@ size_t QuantizedGradient::transform_t_int(size_t t ){
     return -1;
 }
 
-Color QuantizedGradient::get_color_by_float(double t){
+Color QuantizedGradient::get_color_by_float(double t) const{
     size_t i = transform_t_int(round(t*range));
     if(i<0){
         return default_color;
@@ -106,7 +106,7 @@ Color QuantizedGradient::get_color_by_float(double t){
     return colors[i];
 }
 
-Color QuantizedGradient::get_color_by_int(int t){ 
+Color QuantizedGradient::get_color_by_int(int t) const{ 
     size_t i = transform_t_int(t);
     if(i<0){
         return default_color;
@@ -114,6 +114,6 @@ Color QuantizedGradient::get_color_by_int(int t){
     return colors[i];
 }
 
-Color QuantizedGradient::get_color(){
+Color QuantizedGradient::get_color() const{
     return default_color;
 }

@@ -23,9 +23,9 @@ class GradientBase: public ColorSource{
     protected:
     Color default_color = Color::Black;
     GradnientMode mode;
-    double transform_t_double(double t);
+    double transform_t_double(double t) const;
     public:
-    GradnientMode get_mode();
+    GradnientMode get_mode() const;
 };
 
 class Gradient: public GradientBase{
@@ -35,21 +35,21 @@ class Gradient: public GradientBase{
     Gradient(vector<Color> colors, GradnientMode mode = CLAMPED);
     Gradient(vector<ColorNode> nodes, GradnientMode mode = CLAMPED);
 
-    Color get_color_by_float(double t);
-    Color get_color_by_int(int t);
-    Color get_color();
+    Color get_color_by_float(double t) const override;
+    Color get_color_by_int(int t) const override;
+    Color get_color() const override;
 };
 
 class QuantizedGradient: public GradientBase{
     vector<Color> colors;
     size_t range;
-    size_t transform_t_int(size_t t);
+    size_t transform_t_int(size_t t) const;
     public:
     QuantizedGradient(Gradient source_gradient, size_t range);
     
-    Color get_color_by_float(double t);
-    Color get_color_by_int(int t);
-    Color get_color();
+    Color get_color_by_float(double t) const override;
+    Color get_color_by_int(int t)const override;
+    Color get_color()const override;
 };
 
 #endif
