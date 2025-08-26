@@ -1,6 +1,8 @@
 #include "window.h"
 #include <iostream>
 
+
+
 static Gradient g1({sf::Color::Yellow, sf::Color::Red, sf::Color::Magenta,
                     sf::Color::Yellow},
                    PERIODIC);
@@ -28,55 +30,55 @@ void SimulationWindow::update_view() {
   do_redraw = true;
 }
 
-sf::Color SimulationWindow::get_color(bool value, bool loaded, size_t age) {
-  if (value && loaded) {
-    return sf::Color::White;
-  }
-  if (loaded) {
-    return sf::Color::Black;
-  }
+// sf::Color SimulationWindow::get_color(bool value, bool loaded, size_t age) {
+//   if (value && loaded) {
+//     return sf::Color::White;
+//   }
+//   if (loaded) {
+//     return sf::Color::Black;
+//   }
 
-  return g2.get_color_by_int(age);
-}
+//   return g2.get_color_by_int(age);
+// }
 
-vector<sf::Color> SimulationWindow::get_color_array() {
-  vector<sf::Color> result;
-  for (size_t i = 0; i < simulation->get_cell_count(); i++) {
-    sf::Color color =
-        get_color(simulation->value_buffer[i], simulation->loaded_buffer[i],
-                  simulation->age_buffer[i]);
-    result.push_back(color);
-    color.toInteger();
-  }
+// vector<sf::Color> SimulationWindow::get_color_array() {
+//   vector<sf::Color> result;
+//   for (size_t i = 0; i < simulation->get_cell_count(); i++) {
+//     sf::Color color =
+//         get_color(simulation->value_buffer[i], simulation->loaded_buffer[i],
+//                   simulation->age_buffer[i]);
+//     result.push_back(color);
+//     color.toInteger();
+//   }
 
-  return result;
-}
+//   return result;
+// }
 
-void SimulationWindow::create_vertex_array() {
-  vertex_array = sf::VertexArray(sf::PrimitiveType::Quads,
-                                 4 * simulation->get_cell_count());
-  const int width = simulation->get_size()[0];
-  const int height = simulation->get_size()[1];
-  float x, y;
-  for (int i = 0; i < width * height; i++) {
-    x = i % width;
-    y = i / width;
-    vertex_array[4 * i + 0] = sf::Vertex({x, y}, sf::Color::Black);
-    vertex_array[4 * i + 1] = sf::Vertex({x + 1, y}, sf::Color::Black);
-    vertex_array[4 * i + 2] = sf::Vertex({x + 1, y + 1}, sf::Color::Black);
-    vertex_array[4 * i + 3] = sf::Vertex({x, y + 1}, sf::Color::Black);
-  }
-}
+// void SimulationWindow::create_vertex_array() {
+//   vertex_array = sf::VertexArray(sf::PrimitiveType::Quads,
+//                                  4 * simulation->get_cell_count());
+//   const int width = simulation->get_size()[0];
+//   const int height = simulation->get_size()[1];
+//   float x, y;
+//   for (int i = 0; i < width * height; i++) {
+//     x = i % width;
+//     y = i / width;
+//     vertex_array[4 * i + 0] = sf::Vertex({x, y}, sf::Color::Black);
+//     vertex_array[4 * i + 1] = sf::Vertex({x + 1, y}, sf::Color::Black);
+//     vertex_array[4 * i + 2] = sf::Vertex({x + 1, y + 1}, sf::Color::Black);
+//     vertex_array[4 * i + 3] = sf::Vertex({x, y + 1}, sf::Color::Black);
+//   }
+// }
 
-void SimulationWindow::update_vertex_array(double t) {
-  for (size_t i = 0; i < simulation->get_cell_count(); i++) {
-    sf::Color color = interp_func(old_color_array[i], new_color_array[i], t);
-    vertex_array[4 * i + 0].color = color;
-    vertex_array[4 * i + 1].color = color;
-    vertex_array[4 * i + 2].color = color;
-    vertex_array[4 * i + 3].color = color;
-  }
-}
+// void SimulationWindow::update_vertex_array(double t) {
+//   for (size_t i = 0; i < simulation->get_cell_count(); i++) {
+//     sf::Color color = interp_func(old_color_array[i], new_color_array[i], t);
+//     vertex_array[4 * i + 0].color = color;
+//     vertex_array[4 * i + 1].color = color;
+//     vertex_array[4 * i + 2].color = color;
+//     vertex_array[4 * i + 3].color = color;
+//   }
+// }
 
 SimulationWindow::SimulationWindow(const sf::Vector2i window_size,
                                    const shared_ptr<Simulation> simulation,
@@ -84,11 +86,14 @@ SimulationWindow::SimulationWindow(const sf::Vector2i window_size,
     : sf::RenderWindow(sf::VideoMode(window_size.x, window_size.y),
                        "Simulation"),
       simulation(simulation),
+      renderer(simulation, make_shared<SquareGridBuilder>()),
       settings(settings),
       frame_counter(0),
       do_update_view(false),
       do_redraw(false),
       paused(true) {
+
+    //renderer = SimulationRenderer(simulation, make_shared<SquareGridBuilder>());
   if (settings.simulation_framerate <= 0) {
     frames_per_step = 1;
   } else {
@@ -114,12 +119,6 @@ SimulationWindow::SimulationWindow(const sf::Vector2i window_size,
       0.01 * settings.max_view_speed);
   view_body.set_pos(center);
 
-  new_color_array = get_color_array();
-  old_color_array = new_color_array;
-  create_vertex_array();
-
-  grid = generate_grid(simulation_size, sf::Color(40, 40, 40));
-
   this->simulation->reset();
 }
 
@@ -142,7 +141,7 @@ void SimulationWindow::handle_input() {
   }
   if (inputSystem.resetAction.wasReleasedThisFrame()) {
     simulation->reset();
-    update_vertex_array(0);
+    renderer.update_vertex_array(0);
   }
 
   direction_vector = inputSystem.arrowsAction.get_value();
@@ -153,19 +152,18 @@ void SimulationWindow::step() {
 
   if (frame_counter == 0 && !paused) {
     simulation->step();
-    old_color_array = vector<sf::Color>(new_color_array);
-    new_color_array = get_color_array();
+    renderer.push_color_buffer();
   }
 
   if (!paused) {
     double t = double(frame_counter) / frames_per_step;
-    update_vertex_array(t);
+    renderer.update_vertex_array(t);
   }
 
   clear();
-  draw(vertex_array);
+  draw(renderer.vertex_array);
   if (settings.show_grid) {
-    draw(grid);
+    draw(renderer.grid);
   }
 
   display();

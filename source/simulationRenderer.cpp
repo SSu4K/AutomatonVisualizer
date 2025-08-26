@@ -1,8 +1,8 @@
 #include "simulationRenderer.h"
 
 static const Gradient g1({sf::Color::Yellow, sf::Color::Red, sf::Color::Magenta,
-                    sf::Color::Yellow},
-                   PERIODIC);
+                          sf::Color::Yellow},
+                         PERIODIC);
 static const QuantizedGradient g2(g1, 20);
 
 static const sf::Color GRID_COLOR = sf::Color(0, 0, 0);
@@ -18,6 +18,24 @@ static sf::Color get_color(bool value, bool loaded, size_t age) {
   return g2.get_color_by_int(age);
 }
 
+SimulationRenderer::SimulationRenderer(shared_ptr<Simulation> simulation,
+                                       shared_ptr<IVertexArrayBuilder> builder)
+    : simulation(simulation),
+      segment_size(builder->get_segment_size()),
+      segment_count(simulation->get_cell_count()) {
+  color_buffer_index = 0;
+  color_buffer[0].resize(segment_count);
+  color_buffer[1].resize(segment_count);
+
+  vertex_array = builder->build(*simulation);
+  grid = builder->build_grid(*simulation, GRID_COLOR);
+}
+
+SimulationRenderer::~SimulationRenderer() {
+  // delete [] color_buffer[0];
+  // delete [] color_buffer[1];
+}
+
 void SimulationRenderer::update_vertex_array(double t) {
   for (size_t i = 0; i < segment_count; i++) {
     sf::Color color = interp_func(color_buffer[!color_buffer_index][i],
@@ -26,19 +44,6 @@ void SimulationRenderer::update_vertex_array(double t) {
       vertex_array[segment_size * i + j].color = color;
     }
   }
-}
-
-SimulationRenderer::SimulationRenderer(shared_ptr<Simulation> simulation,
-                                       shared_ptr<IVertexArrayBuilder> builder)
-    : simulation(simulation),
-      segment_size(builder->get_segment_size()),
-      segment_count(simulation->get_cell_count()) {
-  color_buffer_index = 0;
-  color_buffer[0] = new sf::Color[segment_count]();
-  color_buffer[1] = new sf::Color[segment_count]();
-
-  vertex_array = builder->build(*simulation);
-  grid = builder->build_grid(*simulation, GRID_COLOR);
 }
 
 void SimulationRenderer::push_color_buffer() {

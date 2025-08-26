@@ -13,23 +13,22 @@ class SimulationRenderer{
     size_t segment_size;
     size_t segment_count;
 
-    sf::VertexArray vertex_array;
-    sf::VertexArray grid;
-
     // index - new_colors
     // !index - old_colors 
     bool color_buffer_index;
-    sf::Color* color_buffer[2];
+    std::vector<sf::Color> color_buffer[2];
 
     function<sf::Color(const sf::Color&, const sf::Color&, float)> interp_func =
       utils::powrp<6>;
 
-    vector<sf::Color> get_color_array();
-    void create_vertex_array();
-    void create_grid();
+    public:
+    sf::VertexArray vertex_array;
+    sf::VertexArray grid;
+
+    SimulationRenderer() = default;
+    SimulationRenderer(shared_ptr<Simulation> simulation, shared_ptr<IVertexArrayBuilder> builder);
+
+    ~SimulationRenderer();
     void update_vertex_array(double t);
     void push_color_buffer();
-
-    public:
-    SimulationRenderer(shared_ptr<Simulation> simulation, shared_ptr<IVertexArrayBuilder> builder);
 };

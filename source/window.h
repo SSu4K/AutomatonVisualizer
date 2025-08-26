@@ -8,6 +8,7 @@
 #include "colors/gradient.h"
 #include "input/inputsystem.h"
 #include "simulation.h"
+#include "simulationRenderer.h"
 #include "utils.hpp"
 
 #define DEFAULT_FRAMERATE 60
@@ -27,13 +28,8 @@ const WindowSettings DEFAULT_WINDOW_SETTINGS = {
 class SimulationWindow : public sf::RenderWindow {
  private:
   shared_ptr<Simulation> simulation;
-
+  SimulationRenderer renderer;
   sf::View view;
-  sf::VertexArray vertex_array;
-  sf::VertexArray grid;
-
-  vector<sf::Color> old_color_array;
-  vector<sf::Color> new_color_array; 
 
   InputSystem inputSystem;
 
@@ -53,11 +49,11 @@ class SimulationWindow : public sf::RenderWindow {
   bool paused;
 
   void update_view();
-  sf::Color get_color(bool value, bool loaded, size_t age);
+  //sf::Color get_color(bool value, bool loaded, size_t age);
 
-  vector<sf::Color> get_color_array();
-  void create_vertex_array();
-  void update_vertex_array(double t);
+  //vector<sf::Color> get_color_array();
+  //void create_vertex_array();
+  //void update_vertex_array(double t);
   void handle_input();
 
  public:
