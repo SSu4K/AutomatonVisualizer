@@ -17,7 +17,7 @@ using namespace std;
 template <class T>
 class Rule{
 public:
-    virtual T get_next_cell_value(const Node<T> &cell, std::shared_ptr<Graph<T>> &graph) const;
+    virtual T get_next_cell_value(const Node<T> &cell, std::shared_ptr<Graph<T>> &graph) const = 0;
 };
 
 template <class T> class Automaton {
@@ -58,10 +58,10 @@ public:
   void step();
 };
 
-template <class T>
-T Rule<T>::get_next_cell_value(const Node<T> &cell, std::shared_ptr<Graph<T>> &graph) const{
-  return cell.value;
-};
+// template <class T>
+// T Rule<T>::get_next_cell_value(const Node<T> &cell, std::shared_ptr<Graph<T>> &graph) const{
+//   return cell.value;
+// };
 
 template <class T>
 Automaton<T>::Automaton(GraphSp graph,

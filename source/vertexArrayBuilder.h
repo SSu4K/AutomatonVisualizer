@@ -12,9 +12,7 @@ public:
     virtual float get_y_ratio() const = 0;
 
     virtual sf::VertexArray build(const Simulation& sim) const = 0;
-    virtual sf::VertexArray build_net(const Simulation& sim, const sf::Color color) const {
-        return sf::VertexArray();
-    }
+    virtual sf::VertexArray build_net(const Simulation& sim, const sf::Color color) const = 0;
 };
 
 class SquareNetBuilder : public IVertexArrayBuilder {

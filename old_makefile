@@ -23,4 +23,5 @@ run: main
 	./main
 
 clean:
-	rm -rf $(BUILDDIR)/*.o $(BUILDDIR)/*.a $(BUILDDIR)/*/*.o $(BUILDDIR)/*/*.a main
+	find . -type f ! -name 'makefile' ! -name '.gitignore' -delete
+	find . -type d -delete
