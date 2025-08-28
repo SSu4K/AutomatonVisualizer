@@ -2,7 +2,11 @@
 #define __UTILS_H__
 
 #include <SFML/Graphics/Color.hpp>
+#include <SFML/System/Vector2.hpp>
+#include <SFML/Graphics/Rect.hpp>
 #include <cmath>
+#include <vector>
+#include <utility>
 
 namespace utils{
     double clamp(const double value, const double min, const double max);
@@ -11,6 +15,22 @@ namespace utils{
     
     template <int p>
     sf::Color powrp(const sf::Color& c1, const sf::Color& c2, float t);
+
+    // Ax + By + C = 0
+    class LinearFunction{
+        public:
+        float A;
+        float B;
+        float C;
+
+        LinearFunction(float A, float B, float C);
+        LinearFunction(float a, float b);
+
+        float get_y_at(float x) const;
+        float get_x_at(float y) const;
+    };
+
+    std::vector<sf::Vector2f> get_rect_intersections(LinearFunction &func, sf::Rect<float> rect);
 }
 
 

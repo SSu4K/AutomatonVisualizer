@@ -2,6 +2,7 @@
 #include <SFML/Graphics.hpp>
 #include <cmath>
 #include "simulation.h"
+#include "utils.hpp"
 
 class IVertexArrayBuilder {
 public:
@@ -11,26 +12,25 @@ public:
     virtual float get_y_ratio() const = 0;
 
     virtual sf::VertexArray build(const Simulation& sim) const = 0;
-    virtual sf::VertexArray build_grid(const Simulation& sim, const sf::Color color) const {
+    virtual sf::VertexArray build_net(const Simulation& sim, const sf::Color color) const {
         return sf::VertexArray();
     }
 };
 
-class SquareGridBuilder : public IVertexArrayBuilder {
+class SquareNetBuilder : public IVertexArrayBuilder {
 public:
     size_t get_segment_size() const override;
     float get_x_ratio() const override;
     float get_y_ratio() const override;
     sf::VertexArray build(const Simulation& simulation) const override;
-    sf::VertexArray build_grid(const Simulation& simulation, const sf::Color color) const override;
+    sf::VertexArray build_net(const Simulation& simulation, const sf::Color color) const override;
 };
 
-class TriangleGridBuilder : public IVertexArrayBuilder {
+class TriangleNetBuilder : public IVertexArrayBuilder {
 public:
     size_t get_segment_size() const override;
     float get_x_ratio() const override;
     float get_y_ratio() const override;
     sf::VertexArray build(const Simulation& simulation) const override;
-    sf::VertexArray build_grid(const Simulation& simulation, const sf::Color color) const override;
+    sf::VertexArray build_net(const Simulation& simulation, const sf::Color color) const override;
 };
-

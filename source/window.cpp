@@ -86,7 +86,7 @@ SimulationWindow::SimulationWindow(const sf::Vector2i window_size,
     : sf::RenderWindow(sf::VideoMode(window_size.x, window_size.y),
                        "Simulation"),
       simulation(simulation),
-      renderer(simulation, make_shared<TriangleGridBuilder>()),
+      renderer(simulation, make_shared<TriangleNetBuilder>()),
       settings(settings),
       frame_counter(0),
       do_update_view(false),
@@ -167,7 +167,7 @@ void SimulationWindow::step() {
   clear();
   draw(renderer.vertex_array);
   if (settings.show_grid) {
-    draw(renderer.grid);
+    draw(renderer.net);
   }
 
   display();

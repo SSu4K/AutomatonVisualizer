@@ -23,7 +23,7 @@ class SimulationRenderer{
 
     public:
     sf::VertexArray vertex_array;
-    sf::VertexArray grid;
+    sf::VertexArray net;
 
     SimulationRenderer() = default;
     SimulationRenderer(shared_ptr<Simulation> simulation, shared_ptr<IVertexArrayBuilder> builder);

@@ -7,12 +7,15 @@
 
 int main() {
   srand(time(NULL));
-  size_vector size = {100, 100};
+  size_vector size = {200, 100};
   // BSRule carpet_rule({2, 3, 4, 5}, {});
   BSRule bs_gol_rule(6152);
   // BSRule bs_gol_rule(6162);
   Simulation simulation(size, make_shared<BSRule>(bs_gol_rule), 0.1);
-  SimulationWindow window({1000, 1000}, make_shared<Simulation>(simulation));
+
+  WindowSettings settings = DEFAULT_WINDOW_SETTINGS;
+  settings.show_grid = true;
+  SimulationWindow window({1000, 1000}, make_shared<Simulation>(simulation), settings);
 
   while (window.isOpen()) {
     sf::Event event;

@@ -1,11 +1,12 @@
 #include "simulationRenderer.h"
 
 static const Gradient g1({sf::Color::Yellow, sf::Color::Red, sf::Color::Magenta,
-                          sf::Color::Yellow},
+                          sf::Color::Red},
                          PERIODIC);
 static const QuantizedGradient g2(g1, 20);
 
-static const sf::Color GRID_COLOR = sf::Color(0, 0, 0);
+//static const sf::Color GRID_COLOR = sf::Color(0, 0, 0);
+static const sf::Color GRID_COLOR = sf::Color::Black;
 
 static sf::Color get_color(bool value, bool loaded, size_t age) {
   if (value && loaded) {
@@ -29,7 +30,7 @@ SimulationRenderer::SimulationRenderer(shared_ptr<Simulation> simulation,
   color_buffer[1].resize(segment_count);
 
   vertex_array = builder->build(*simulation);
-  grid = builder->build_grid(*simulation, GRID_COLOR);
+  net = builder->build_net(*simulation, GRID_COLOR);
 }
 
 SimulationRenderer::~SimulationRenderer() {
