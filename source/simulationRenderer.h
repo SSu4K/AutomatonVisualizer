@@ -6,6 +6,8 @@
 #include <SFML/Graphics.hpp>
 #include "utils.hpp"
 
+typedef function<sf::Color(const sf::Color&, const sf::Color&, float)> ColorInterpolationFunction;
+
 class SimulationRenderer{
     protected:
     shared_ptr<Simulation> simulation;
@@ -18,8 +20,9 @@ class SimulationRenderer{
     bool color_buffer_index;
     std::vector<sf::Color> color_buffer[2];
 
-    function<sf::Color(const sf::Color&, const sf::Color&, float)> interp_func =
-      utils::powrp<6>;
+    ColorInterpolationFunction interp_func =
+      //utils::powrp<6>;
+      utils::lerp;
 
     public:
     sf::VertexArray vertex_array;
@@ -28,7 +31,7 @@ class SimulationRenderer{
     SimulationRenderer() = default;
     SimulationRenderer(shared_ptr<Simulation> simulation, shared_ptr<IVertexArrayBuilder> builder);
 
-    ~SimulationRenderer();
+    ~SimulationRenderer() = default;
     void update_vertex_array(double t);
     void push_color_buffer();
     sf::Vector2f get_simulation_size() const;

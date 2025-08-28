@@ -49,11 +49,6 @@ class SimulationWindow : public sf::RenderWindow {
   bool paused;
 
   void update_view();
-  //sf::Color get_color(bool value, bool loaded, size_t age);
-
-  //vector<sf::Color> get_color_array();
-  //void create_vertex_array();
-  //void update_vertex_array(double t);
   void handle_input();
 
  public:

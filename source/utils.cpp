@@ -23,10 +23,6 @@ sf::Color utils::lerp(const sf::Color& c1, const sf::Color& c2, double t) {
                    k * c1.b + t * c2.b, k * c1.a + t * c2.a);
 }
 
-// Ax + By + C = 0
-
-// Ax + C = -By
-// (Ax + C)/(-B) = y
 utils::LinearFunction::LinearFunction(float A, float B, float C) : A(A), B(B), C(C) {}
 utils::LinearFunction::LinearFunction(float a, float b): A(a), B(-1), C(b) {}
 

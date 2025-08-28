@@ -8,9 +8,8 @@
 int main() {
   srand(time(NULL));
   size_vector size = {200, 100};
-  // BSRule carpet_rule({2, 3, 4, 5}, {});
+  //BSRule carpet_rule({2, 3, 4, 5}, {});
   BSRule bs_gol_rule(6152);
-  // BSRule bs_gol_rule(6162);
   Simulation simulation(size, make_shared<BSRule>(bs_gol_rule), 0.1);
 
   WindowSettings settings = DEFAULT_WINDOW_SETTINGS;

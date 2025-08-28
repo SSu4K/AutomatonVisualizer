@@ -5,7 +5,6 @@ static const Gradient g1({sf::Color::Yellow, sf::Color::Red, sf::Color::Magenta,
                          PERIODIC);
 static const QuantizedGradient g2(g1, 20);
 
-//static const sf::Color GRID_COLOR = sf::Color(0, 0, 0);
 static const sf::Color GRID_COLOR = sf::Color::Black;
 
 static sf::Color get_color(bool value, bool loaded, size_t age) {
@@ -31,11 +30,6 @@ SimulationRenderer::SimulationRenderer(shared_ptr<Simulation> simulation,
 
   vertex_array = builder->build(*simulation);
   net = builder->build_net(*simulation, GRID_COLOR);
-}
-
-SimulationRenderer::~SimulationRenderer() {
-  // delete [] color_buffer[0];
-  // delete [] color_buffer[1];
 }
 
 void SimulationRenderer::update_vertex_array(double t) {
