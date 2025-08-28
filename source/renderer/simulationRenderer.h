@@ -1,6 +1,6 @@
 #pragma once
 
-#include "simulation.h"
+#include "simulation/simulation.h"
 #include "colors/gradient.h"
 #include "vertexArrayBuilder.h"
 #include <SFML/Graphics.hpp>

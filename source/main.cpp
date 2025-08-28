@@ -1,8 +1,8 @@
 #include <SFML/Graphics.hpp>
 #include <iostream>
 
-#include "rules.h"
-#include "simulation.h"
+#include "simulation/rules.h"
+#include "simulation/simulation.h"
 #include "window.h"
 
 int main() {

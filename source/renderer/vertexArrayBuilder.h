@@ -1,7 +1,7 @@
 #pragma once
 #include <SFML/Graphics.hpp>
 #include <cmath>
-#include "simulation.h"
+#include "simulation/simulation.h"
 #include "utils.hpp"
 
 class IVertexArrayBuilder {
