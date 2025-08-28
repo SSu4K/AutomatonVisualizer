@@ -25,10 +25,12 @@ struct WindowSettings {
 const WindowSettings DEFAULT_WINDOW_SETTINGS = {
     DEFAULT_FRAMERATE, DEFAULT_SIMULATION_FRAMERATE, false, 100, 2000};
 
-class SimulationWindow : public sf::RenderWindow {
+class SimulationWindow {
  private:
   shared_ptr<Simulation> simulation;
   SimulationRenderer renderer;
+  sf::RenderTexture renderTexture;
+    sf::Sprite renderSprite;
   sf::View view;
 
   InputSystem inputSystem;
@@ -59,6 +61,8 @@ class SimulationWindow : public sf::RenderWindow {
   SimulationWindow(const sf::Vector2i window_size,
                    const shared_ptr<Simulation> simulation);
   void step();
+  void renderSimulation();
+  const sf::Texture& getTexture() const;
 };
 
 #endif

@@ -57,3 +57,8 @@ sf::Vector2f SimulationRenderer::get_simulation_size() const{
 
     return sf::Vector2f(width*builder->get_x_ratio(), height * builder->get_y_ratio());
 }
+
+void SimulationRenderer::render(sf::RenderTarget& target, const Simulation& sim) const{
+    target.draw(vertex_array);
+    target.draw(net);
+}

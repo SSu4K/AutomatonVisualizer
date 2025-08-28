@@ -35,4 +35,5 @@ class SimulationRenderer{
     void update_vertex_array(double t);
     void push_color_buffer();
     sf::Vector2f get_simulation_size() const;
+    void render(sf::RenderTarget& target, const Simulation& sim) const;
 };

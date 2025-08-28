@@ -23,7 +23,7 @@ sf::VertexArray generate_grid(const sf::Vector2i size, const sf::Color color) {
 }
 
 void SimulationWindow::update_view() {
-  setView(this->view);
+  // setView(this->view);
   do_update_view = false;
   do_redraw = true;
 }
@@ -31,15 +31,16 @@ void SimulationWindow::update_view() {
 SimulationWindow::SimulationWindow(const sf::Vector2i window_size,
                                    const shared_ptr<Simulation> simulation,
                                    const WindowSettings& settings)
-    : sf::RenderWindow(sf::VideoMode(window_size.x, window_size.y),
-                       "Simulation"),
-      simulation(simulation),
+    : simulation(simulation),
       renderer(simulation, make_shared<TriangleNetBuilder>()),
       settings(settings),
       frame_counter(0),
       do_update_view(false),
       do_redraw(false),
       paused(true) {
+  renderTexture.create(window_size.x, window_size.y);
+  renderSprite.setTexture(renderTexture.getTexture());
+  view = renderTexture.getDefaultView();
 
   if (settings.simulation_framerate <= 0) {
     frames_per_step = 1;
@@ -49,7 +50,8 @@ SimulationWindow::SimulationWindow(const sf::Vector2i window_size,
       frames_per_step = 1;
     }
   }
-  this->setFramerateLimit(settings.framerate);
+
+  // this->setFramerateLimit(settings.framerate);
 
   sf::Vector2f simulation_size = renderer.get_simulation_size();
   float w_ratio = simulation_size.x / float(window_size.x);
@@ -58,7 +60,7 @@ SimulationWindow::SimulationWindow(const sf::Vector2i window_size,
   sf::Vector2f center = sf::Vector2f(simulation_size) / 2.0f;
   view = sf::View(center, sf::Vector2f(window_size)),
   view.zoom(std::max(w_ratio, h_ratio));
-  setView(view);
+  // setView(view);
 
   view_body = Body::Body(
       50, 10,
@@ -70,7 +72,8 @@ SimulationWindow::SimulationWindow(const sf::Vector2i window_size,
 }
 
 SimulationWindow::SimulationWindow(const sf::Vector2i window_size,
-                                   const shared_ptr<Simulation> simulation): SimulationWindow(window_size, simulation, DEFAULT_WINDOW_SETTINGS) {}
+                                   const shared_ptr<Simulation> simulation)
+    : SimulationWindow(window_size, simulation, DEFAULT_WINDOW_SETTINGS) {}
 
 void SimulationWindow::handle_input() {
   inputSystem.update();
@@ -107,13 +110,6 @@ void SimulationWindow::step() {
     renderer.update_vertex_array(t);
   }
 
-  clear();
-  draw(renderer.vertex_array);
-  if (settings.show_grid) {
-    draw(renderer.net);
-  }
-
-  display();
   frame_counter++;
   frame_counter %= frames_per_step;
 
@@ -121,4 +117,18 @@ void SimulationWindow::step() {
   view_body.simulate(dt, settings.drag_force * direction_vector);
   view.setCenter(view_body.get_pos());
   this->update_view();
+}
+
+void SimulationWindow::renderSimulation() {
+  renderTexture.clear(sf::Color::Black);
+
+  renderTexture.setView(view);
+
+  renderer.render(renderTexture, *simulation);
+
+  renderTexture.display();
+}
+
+const sf::Texture& SimulationWindow::getTexture() const {
+    return renderTexture.getTexture();
 }
