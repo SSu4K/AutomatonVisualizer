@@ -68,7 +68,14 @@ Color Gradient::get_color_by_float(double t) const{
 }
 
 Color Gradient::get_color_by_int(int t) const{
-    return nodes[0].color;
+    if(t >= int(nodes.size())){
+        return nodes[nodes.size()-1].color;
+    }
+    if(t < 0){
+        return nodes[0].color;
+    }
+
+    return nodes[t].color;
 }
 
 Color Gradient::get_color() const{
@@ -84,14 +91,14 @@ QuantizedGradient::QuantizedGradient(Gradient source_gradient, size_t range): ra
     }
 }
 
-size_t QuantizedGradient::transform_t_int(size_t t ) const{
+size_t QuantizedGradient::transform_t_int(size_t t) const{
     switch (mode){
     case CLAMPED:
         return utils::clampi(t, 0, range-1);
     case PERIODIC:
         return t%range;
     case LIMITED:
-        if(t>=0 && t<range){
+        if(t<range){
             return t;
         }
     }
@@ -100,17 +107,11 @@ size_t QuantizedGradient::transform_t_int(size_t t ) const{
 
 Color QuantizedGradient::get_color_by_float(double t) const{
     size_t i = transform_t_int(round(t*range));
-    if(i<0){
-        return default_color;
-    }
     return colors[i];
 }
 
 Color QuantizedGradient::get_color_by_int(int t) const{ 
     size_t i = transform_t_int(t);
-    if(i<0){
-        return default_color;
-    }
     return colors[i];
 }
 

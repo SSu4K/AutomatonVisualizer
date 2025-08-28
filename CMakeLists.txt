@@ -14,6 +14,13 @@ file(GLOB_RECURSE SOURCES CONFIGURE_DEPENDS
 # Create the executable
 add_executable(main ${SOURCES})
 
+# Add warning flags (portable between compilers)
+if (CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
+    target_compile_options(main PRIVATE -Wall -Wextra -pedantic)
+elseif (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
+    target_compile_options(main PRIVATE /W4 /permissive-)
+endif()
+
 # Let your code include headers like #include "foo.hpp" from source/
 target_include_directories(main PRIVATE ${CMAKE_SOURCE_DIR}/source)
 
