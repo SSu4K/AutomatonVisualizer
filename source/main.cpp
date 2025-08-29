@@ -15,19 +15,102 @@ typedef enum {
   Close,
 } SimulationResult;
 
-SimulationWindow build_simulation_window() {
-  size_vector size = {200, 100};
+struct SimulationSettings {
+  int simulation_width = 100;
+  int simulation_height = 100;
+  int selected_builder = 0;
+  int selected_rule = 0;
+};
+
+SimulationSettings simulationSettings;
+shared_ptr<SimulationWindow> sim_window;
+
+int simulationFramerate = 10;
+bool reload = true;
+
+void build_simulation_window() {
+  size_vector size = {size_t(simulationSettings.simulation_width),
+                      size_t(simulationSettings.simulation_height)};
   BSRule bs_gol_rule(6152);
   Simulation simulation(size, std::make_shared<BSRule>(bs_gol_rule), 0.1);
 
+  shared_ptr<IVertexArrayBuilder> builder = nullptr;
+  if (simulationSettings.selected_builder == 0) {
+    builder = make_shared<SquareNetBuilder>();
+  } else {
+    builder = make_shared<TriangleNetBuilder>();
+  }
+
   WindowSettings settings = DEFAULT_WINDOW_SETTINGS;
-  return SimulationWindow(std::make_shared<Simulation>(simulation), settings);
+  sim_window = make_shared<SimulationWindow>(
+      std::make_shared<Simulation>(simulation), builder, settings);
 }
 
-SimulationResult run(RenderWindow &window, SimulationWindow &sim_window) {
+void showViewUI() {
+  ImGui::Begin("View", nullptr, ImGuiWindowFlags_AlwaysAutoResize);
+  ImGui::Image(sim_window->getTexture());
+  ImGui::End();
+}
+
+void showControlPanelUI() {
+  ImGui::Begin("Control Panel");
+  ImGui::SameLine();
+  ImGui::BeginGroup();
+  ImGui::Text("Simulation running...");
+
+  if (ImGui::SliderInt("Framerate", &simulationFramerate, 0, 20)) {
+    sim_window->setSimulationFramerate(simulationFramerate);
+  }
+
+  if (sim_window->getIsPaused()) {
+    if (ImGui::Button("Run"))
+      sim_window->setPaused(false);
+  } else {
+    if (ImGui::Button("Pause"))
+      sim_window->setPaused(true);
+  }
+
+  ImGui::EndGroup();
+  ImGui::End();
+}
+
+void showSettingsUI() {
+  ImGui::Begin("Simulation settings");
+
+  if (ImGui::CollapsingHeader("Size")) {
+    if (ImGui::InputInt("width", &simulationSettings.simulation_width)) {
+      if (simulationSettings.simulation_width <= 0) {
+        simulationSettings.simulation_width = 1;
+      } else if (simulationSettings.simulation_width > 1000) {
+        simulationSettings.simulation_width = 1000;
+      }
+    }
+    if (ImGui::InputInt("height", &simulationSettings.simulation_height)) {
+      if (simulationSettings.simulation_height <= 0) {
+        simulationSettings.simulation_height = 1;
+      } else if (simulationSettings.simulation_height > 1000) {
+        simulationSettings.simulation_height = 1000;
+      }
+    }
+  }
+
+  static const char* item_names[] = {"Square Net", "Triangle Net"};
+
+  if (ImGui::Combo("Select net", &simulationSettings.selected_builder,
+                   item_names, IM_ARRAYSIZE(item_names))) {
+  }
+
+  if (ImGui::Button("Reload")) {
+    reload = true;
+  }
+
+  ImGui::End();
+}
+
+SimulationResult run(RenderWindow& window) {
   sf::Clock deltaClock;
 
-  bool reload = false;
+  reload = false;
   while (window.isOpen() && !reload) {
     sf::Event event;
     while (window.pollEvent(event)) {
@@ -40,48 +123,19 @@ SimulationResult run(RenderWindow &window, SimulationWindow &sim_window) {
     sf::Time dt = deltaClock.restart();
     ImGui::SFML::Update(window, dt);
 
-    static int simulationFramerateSlider =
-        sim_window.getSettings().simulation_framerate;
-
-    sim_window.renderSimulation();
-    sim_window.step(dt.asSeconds());
+    sim_window->renderSimulation();
+    sim_window->step(dt.asSeconds());
 
     window.clear();
 
     // Main Menu
     ImGui::BeginMainMenuBar();
     ImGui::Text("Automaton Visualiser");
-    if(ImGui::Button("Reload")){
-      reload = true;
-    }
     ImGui::EndMainMenuBar();
 
-    // View
-    ImGui::Begin("View", nullptr, ImGuiWindowFlags_AlwaysAutoResize);
-    ImGui::Image(sim_window.getTexture());
-    ImGui::End();
-
-    // Control panel
-    ImGui::Begin("Control Panel");
-    ImGui::SameLine();
-    ImGui::BeginGroup();
-    ImGui::Text("Simulation running...");
-
-    if (ImGui::SliderInt("Framerate", &simulationFramerateSlider, 0, 20)) {
-      sim_window.setSimulationFramerate(simulationFramerateSlider);
-    }
-
-    if (sim_window.getIsPaused()) {
-      if (ImGui::Button("Run"))
-        sim_window.setPaused(false);
-    } else {
-      if (ImGui::Button("Pause"))
-        sim_window.setPaused(true);
-    }
-
-    ImGui::EndGroup();
-
-    ImGui::End();
+    showViewUI();
+    showSettingsUI();
+    showControlPanelUI();
 
     // Render ImGui on top of the window
     ImGui::SFML::Render(window);
@@ -104,8 +158,8 @@ int main() {
   SimulationResult result = Reload;
 
   while (result == Reload) {
-    SimulationWindow sim_window = build_simulation_window();
-    result = run(window, sim_window);
+    build_simulation_window();
+    result = run(window);
   }
 
   window.close();

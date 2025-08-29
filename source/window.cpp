@@ -22,12 +22,12 @@ sf::VertexArray generate_grid(const sf::Vector2i size, const sf::Color color) {
   return grid;
 }
 
-SimulationWindow::SimulationWindow(const shared_ptr<Simulation> simulation,
+SimulationWindow::SimulationWindow(const shared_ptr<Simulation> simulation, const shared_ptr<IVertexArrayBuilder> builder,
                                    const WindowSettings& settings)
     : simulation(simulation),
-      renderer(simulation, make_shared<TriangleNetBuilder>()),
+      renderer(simulation, builder),
       settings(settings),
-      isPaused(true) {
+      isPaused(false) {
   renderTexture.create(settings.window_size.x, settings.window_size.y);
   renderSprite.setTexture(renderTexture.getTexture());
   view = renderTexture.getDefaultView();
@@ -49,8 +49,8 @@ SimulationWindow::SimulationWindow(const shared_ptr<Simulation> simulation,
   this->simulation->reset();
 }
 
-SimulationWindow::SimulationWindow(const shared_ptr<Simulation> simulation)
-    : SimulationWindow(simulation, DEFAULT_WINDOW_SETTINGS) {}
+SimulationWindow::SimulationWindow(const shared_ptr<Simulation> simulation, const WindowSettings& settings)
+    : SimulationWindow(simulation, make_shared<SquareNetBuilder>(), settings) {}
 
 void SimulationWindow::handle_input() {
   inputSystem.update();

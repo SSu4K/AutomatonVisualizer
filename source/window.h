@@ -49,9 +49,9 @@ class SimulationWindow {
 
  public:
   SimulationWindow() = default;
-  SimulationWindow(const shared_ptr<Simulation> simulation,
+  SimulationWindow(const shared_ptr<Simulation> simulation, const shared_ptr<IVertexArrayBuilder> builder,
                    const WindowSettings& settings);
-  SimulationWindow(const shared_ptr<Simulation> simulation);
+  SimulationWindow(const shared_ptr<Simulation> simulation, const WindowSettings& settings = DEFAULT_WINDOW_SETTINGS);
   void stepSimulation();
   void stepWindow(float dt);
   void interpolate(float t);
