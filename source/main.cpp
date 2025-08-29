@@ -8,36 +8,8 @@
 #include <imgui.h>
 #include <imgui-SFML.h>
 
-// int main() {
-//   srand(time(NULL));
-//   size_vector size = {200, 100};
-//   //BSRule carpet_rule({2, 3, 4, 5}, {});
-//   BSRule bs_gol_rule(6152);
-//   Simulation simulation(size, make_shared<BSRule>(bs_gol_rule), 0.1);
-
-//   WindowSettings settings = DEFAULT_WINDOW_SETTINGS;
-//   settings.show_grid = true;
-//   SimulationWindow window({1000, 1000}, make_shared<Simulation>(simulation), settings);
-
-//   while (window.isOpen()) {
-//     sf::Event event;
-//     while (window.pollEvent(event)) {
-//       if (event.type == sf::Event::Closed) {
-//         window.close();
-//         break;
-//       }
-//     }
-//     window.step();
-//   }
-
-//   return 0;
-// }
-#include <SFML/Graphics.hpp>
-#include <imgui.h>
-#include <imgui-SFML.h>
-#include "simulation/simulation.h"
-#include "simulation/rules.h"
-#include "window.h"
+const float WINDOW_FRAMERATE = 60;
+//const float SIMULATION_FRAMERATE = 5;
 
 int main() {
     srand(time(NULL));
@@ -52,12 +24,17 @@ int main() {
     sf::RenderWindow window(sf::VideoMode(1000, 1000), "Simulation with ImGui");
 
     // --- Initialize ImGui-SFML ---
-    ImGui::SFML::Init(window);
+    if(!ImGui::SFML::Init(window)){
+        return 0;
+    }
+
+    const Vector2i sim_window_size(800, 800); 
 
     // --- Create SimulationWindow (renders to off-screen texture) ---
-    SimulationWindow sim_window({1000, 1000}, std::make_shared<Simulation>(simulation), settings);
+    SimulationWindow sim_window(sim_window_size, std::make_shared<Simulation>(simulation), settings);
 
     sf::Clock deltaClock;
+    sf::Clock simulationDeltaClock;
 
     while (window.isOpen()) {
         sf::Event event;
@@ -70,10 +47,17 @@ int main() {
         }
 
         // Update ImGui state
-        ImGui::SFML::Update(window, deltaClock.restart());
+        sf::Time dt = deltaClock.restart();
+        ImGui::SFML::Update(window, dt);
 
+        static int simulationFramerate = 10;
         // --- Step simulation ---
-        sim_window.step();
+        if(simulationDeltaClock.getElapsedTime().asSeconds() >= 1.0 / simulationFramerate){
+            sim_window.stepSimulation();
+            simulationDeltaClock.restart();
+        }
+        sim_window.stepWindow(dt.asSeconds());
+        sim_window.interpolate(simulationDeltaClock.getElapsedTime().asSeconds() * simulationFramerate);
 
         // --- Render simulation to its off-screen texture ---
         sim_window.renderSimulation();
@@ -82,22 +66,35 @@ int main() {
         window.clear();
 
         // Draw the simulation texture inside ImGui
-        ImGui::Begin("Simulation View");
-        ImGui::Image(sim_window.getTexture());  // display the RenderTexture
-        ImGui::End();
+        ImGui::Begin("Simulation View", nullptr, ImGuiWindowFlags_AlwaysAutoResize);
+        ImGui::Image(sim_window.getTexture(), Vector2f(sim_window_size));  // display the RenderTexture
 
         // Control panel
-        ImGui::Begin("Control Panel");
+        ImGui::SameLine();
+        ImGui::BeginGroup();
         ImGui::Text("Simulation running...");
-        static float speed = 0.1f;
-        if (ImGui::SliderFloat("Speed", &speed, 0.01f, 1.0f)) {
-            // Optionally pass speed to simulation
-            // sim_window.getSimulation()->setSpeed(speed);
+    
+        if (ImGui::SliderInt("Framerate", &simulationFramerate, 0, 20)) {
+            sim_window.setSimulationFramerate(simulationFramerate);
         }
+
+        if(sim_window.isPaused()){
+            if(ImGui::Button("Run"))
+                sim_window.setPaused(false);
+        }
+        else{
+            if(ImGui::Button("Pause"))
+                sim_window.setPaused(true);
+        }
+
+        ImGui::EndGroup();
+
         ImGui::End();
 
         // Render ImGui on top of the window
         ImGui::SFML::Render(window);
+
+        sf::sleep(sf::seconds(1.f / WINDOW_FRAMERATE - deltaClock.getElapsedTime().asSeconds()));
 
         window.display();
     }

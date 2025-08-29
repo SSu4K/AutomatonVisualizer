@@ -46,8 +46,6 @@ class SimulationWindow {
   function<sf::Color(const sf::Color&, const sf::Color&, float)> interp_func =
       utils::powrp<6>;
 
-  bool do_update_view;
-  bool do_redraw;
   bool paused;
 
   void update_view();
@@ -61,8 +59,18 @@ class SimulationWindow {
   SimulationWindow(const sf::Vector2i window_size,
                    const shared_ptr<Simulation> simulation);
   void step();
+  void stepSimulation();
+  void stepWindow(float dt);
+  void interpolate(float t);
   void renderSimulation();
+
   const sf::Texture& getTexture() const;
+  WindowSettings getSettings() const;
+  bool isPaused() const;
+
+  void setSimulationFramerate(float framerate);
+  void setPaused(bool state);
+  void togglePaused();
 };
 
 #endif

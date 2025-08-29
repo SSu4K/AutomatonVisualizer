@@ -24,8 +24,6 @@ sf::VertexArray generate_grid(const sf::Vector2i size, const sf::Color color) {
 
 void SimulationWindow::update_view() {
   // setView(this->view);
-  do_update_view = false;
-  do_redraw = true;
 }
 
 SimulationWindow::SimulationWindow(const sf::Vector2i window_size,
@@ -35,8 +33,6 @@ SimulationWindow::SimulationWindow(const sf::Vector2i window_size,
       renderer(simulation, make_shared<TriangleNetBuilder>()),
       settings(settings),
       frame_counter(0),
-      do_update_view(false),
-      do_redraw(false),
       paused(true) {
   renderTexture.create(window_size.x, window_size.y);
   renderSprite.setTexture(renderTexture.getTexture());
@@ -80,14 +76,12 @@ void SimulationWindow::handle_input() {
 
   if (inputSystem.zoomInAction.isPressed()) {
     view.zoom(0.8);
-    do_update_view = true;
   }
   if (inputSystem.zoomOutAction.isPressed()) {
     view.zoom(1.2);
-    do_update_view = true;
   }
   if (inputSystem.pauseAction.wasReleasedThisFrame()) {
-    paused = !paused;
+    togglePaused();
   }
   if (inputSystem.resetAction.wasReleasedThisFrame()) {
     simulation->reset();
@@ -119,6 +113,26 @@ void SimulationWindow::step() {
   this->update_view();
 }
 
+void SimulationWindow::stepSimulation() {
+  if (!paused) {
+    simulation->step();
+    renderer.push_color_buffer();
+  }
+}
+
+void SimulationWindow::stepWindow(float dt) {
+  handle_input();
+  view_body.simulate(dt, settings.drag_force * direction_vector);
+  view.setCenter(view_body.get_pos());
+  this->update_view();
+}
+
+void SimulationWindow::interpolate(float t) {
+  if (!paused) {
+    renderer.update_vertex_array(t);
+  }
+}
+
 void SimulationWindow::renderSimulation() {
   renderTexture.clear(sf::Color::Black);
 
@@ -130,5 +144,27 @@ void SimulationWindow::renderSimulation() {
 }
 
 const sf::Texture& SimulationWindow::getTexture() const {
-    return renderTexture.getTexture();
+  return renderTexture.getTexture();
+}
+
+WindowSettings SimulationWindow::getSettings() const {
+  return settings;
+}
+
+bool SimulationWindow::isPaused() const{
+    return paused;
+}
+
+void SimulationWindow::setSimulationFramerate(float framerate) {
+  if (framerate > 0) {
+    settings.framerate = framerate;
+  }
+}
+
+void SimulationWindow::setPaused(bool status){
+    paused = status;
+}
+
+void SimulationWindow::togglePaused(){
+    paused = !paused;
 }
