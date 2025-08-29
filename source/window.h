@@ -7,8 +7,8 @@
 #include "body.h"
 #include "colors/gradient.h"
 #include "input/inputsystem.h"
-#include "simulation/simulation.h"
 #include "renderer/simulationRenderer.h"
+#include "simulation/simulation.h"
 #include "utils.hpp"
 
 #define DEFAULT_FRAMERATE 60
@@ -30,7 +30,7 @@ class SimulationWindow {
   shared_ptr<Simulation> simulation;
   SimulationRenderer renderer;
   sf::RenderTexture renderTexture;
-    sf::Sprite renderSprite;
+  sf::Sprite renderSprite;
   sf::View view;
 
   InputSystem inputSystem;

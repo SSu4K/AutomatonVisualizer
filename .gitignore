@@ -35,3 +35,6 @@ Makefile
 install_manifest.txt
 Testing/
 CTestTestfile.cmake
+
+# Imgui persistant file
+imgui.ini
