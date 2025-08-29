@@ -22,41 +22,23 @@ sf::VertexArray generate_grid(const sf::Vector2i size, const sf::Color color) {
   return grid;
 }
 
-void SimulationWindow::update_view() {
-  // setView(this->view);
-}
-
-SimulationWindow::SimulationWindow(const sf::Vector2i window_size,
-                                   const shared_ptr<Simulation> simulation,
+SimulationWindow::SimulationWindow(const shared_ptr<Simulation> simulation,
                                    const WindowSettings& settings)
     : simulation(simulation),
       renderer(simulation, make_shared<TriangleNetBuilder>()),
       settings(settings),
-      frame_counter(0),
-      paused(true) {
-  renderTexture.create(window_size.x, window_size.y);
+      isPaused(true) {
+  renderTexture.create(settings.window_size.x, settings.window_size.y);
   renderSprite.setTexture(renderTexture.getTexture());
   view = renderTexture.getDefaultView();
 
-  if (settings.simulation_framerate <= 0) {
-    frames_per_step = 1;
-  } else {
-    frames_per_step = settings.framerate / settings.simulation_framerate;
-    if (frames_per_step <= 0) {
-      frames_per_step = 1;
-    }
-  }
-
-  // this->setFramerateLimit(settings.framerate);
-
   sf::Vector2f simulation_size = renderer.get_simulation_size();
-  float w_ratio = simulation_size.x / float(window_size.x);
-  float h_ratio = simulation_size.y / float(window_size.y);
+  float w_ratio = simulation_size.x / float(settings.window_size.x);
+  float h_ratio = simulation_size.y / float(settings.window_size.y);
 
   sf::Vector2f center = sf::Vector2f(simulation_size) / 2.0f;
-  view = sf::View(center, sf::Vector2f(window_size)),
+  view = sf::View(center, sf::Vector2f(settings.window_size)),
   view.zoom(std::max(w_ratio, h_ratio));
-  // setView(view);
 
   view_body = Body::Body(
       50, 10,
@@ -67,9 +49,8 @@ SimulationWindow::SimulationWindow(const sf::Vector2i window_size,
   this->simulation->reset();
 }
 
-SimulationWindow::SimulationWindow(const sf::Vector2i window_size,
-                                   const shared_ptr<Simulation> simulation)
-    : SimulationWindow(window_size, simulation, DEFAULT_WINDOW_SETTINGS) {}
+SimulationWindow::SimulationWindow(const shared_ptr<Simulation> simulation)
+    : SimulationWindow(simulation, DEFAULT_WINDOW_SETTINGS) {}
 
 void SimulationWindow::handle_input() {
   inputSystem.update();
@@ -91,30 +72,8 @@ void SimulationWindow::handle_input() {
   direction_vector = inputSystem.arrowsAction.get_value();
 }
 
-void SimulationWindow::step() {
-  handle_input();
-
-  if (frame_counter == 0 && !paused) {
-    simulation->step();
-    renderer.push_color_buffer();
-  }
-
-  if (!paused) {
-    double t = double(frame_counter) / frames_per_step;
-    renderer.update_vertex_array(t);
-  }
-
-  frame_counter++;
-  frame_counter %= frames_per_step;
-
-  float dt = 1.0 / settings.framerate;
-  view_body.simulate(dt, settings.drag_force * direction_vector);
-  view.setCenter(view_body.get_pos());
-  this->update_view();
-}
-
 void SimulationWindow::stepSimulation() {
-  if (!paused) {
+  if (!isPaused) {
     simulation->step();
     renderer.push_color_buffer();
   }
@@ -124,13 +83,25 @@ void SimulationWindow::stepWindow(float dt) {
   handle_input();
   view_body.simulate(dt, settings.drag_force * direction_vector);
   view.setCenter(view_body.get_pos());
-  this->update_view();
 }
 
 void SimulationWindow::interpolate(float t) {
-  if (!paused) {
+  if (!isPaused) {
     renderer.update_vertex_array(t);
   }
+}
+
+void SimulationWindow::step(float dt){
+    stepWindow(dt);
+    float timePerFrame = 1.0/settings.simulation_framerate;
+    float elapsed = deltaClock.getElapsedTime().asSeconds();
+    if(elapsed >= timePerFrame){
+        stepSimulation();
+        deltaClock.restart();
+    }
+    else{
+        interpolate(elapsed/timePerFrame);
+    }
 }
 
 void SimulationWindow::renderSimulation() {
@@ -151,20 +122,20 @@ WindowSettings SimulationWindow::getSettings() const {
   return settings;
 }
 
-bool SimulationWindow::isPaused() const{
-    return paused;
+bool SimulationWindow::getIsPaused() const {
+  return isPaused;
 }
 
 void SimulationWindow::setSimulationFramerate(float framerate) {
   if (framerate > 0) {
-    settings.framerate = framerate;
+    settings.simulation_framerate = framerate;
   }
 }
 
-void SimulationWindow::setPaused(bool status){
-    paused = status;
+void SimulationWindow::setPaused(bool status) {
+  isPaused = status;
 }
 
-void SimulationWindow::togglePaused(){
-    paused = !paused;
+void SimulationWindow::togglePaused() {
+  isPaused = !isPaused;
 }

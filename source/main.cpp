@@ -8,81 +8,70 @@
 #include <imgui-SFML.h>
 #include <imgui.h>
 
-const float WINDOW_FRAMERATE = 60;
-// const float SIMULATION_FRAMERATE = 5;
+const float IMGUI_WINDOW_FRAMERATE = 60;
 
-int main() {
-  srand(time(NULL));
+typedef enum {
+  Reload,
+  Close,
+} SimulationResult;
+
+SimulationWindow build_simulation_window() {
   size_vector size = {200, 100};
   BSRule bs_gol_rule(6152);
   Simulation simulation(size, std::make_shared<BSRule>(bs_gol_rule), 0.1);
-	
+
   WindowSettings settings = DEFAULT_WINDOW_SETTINGS;
-  settings.show_grid = true;
+  return SimulationWindow(std::make_shared<Simulation>(simulation), settings);
+}
 
-  // --- Create SFML window ---
-  sf::RenderWindow window(sf::VideoMode(1000, 1000), "Simulation with ImGui");
-
-  // --- Initialize ImGui-SFML ---
-  if (!ImGui::SFML::Init(window)) {
-    return 0;
-  }
-
-  const Vector2i sim_window_size(800, 800);
-
-  // --- Create SimulationWindow (renders to off-screen texture) ---
-  SimulationWindow sim_window(
-      sim_window_size, std::make_shared<Simulation>(simulation), settings);
-
+SimulationResult run(RenderWindow &window, SimulationWindow &sim_window) {
   sf::Clock deltaClock;
-  sf::Clock simulationDeltaClock;
 
-  while (window.isOpen()) {
+  bool reload = false;
+  while (window.isOpen() && !reload) {
     sf::Event event;
     while (window.pollEvent(event)) {
-      ImGui::SFML::ProcessEvent(event);  // pass events to ImGui
+      ImGui::SFML::ProcessEvent(event);
       if (event.type == sf::Event::Closed) {
-        window.close();
-        break;
+        return Close;
       }
     }
 
-    // Update ImGui state
     sf::Time dt = deltaClock.restart();
     ImGui::SFML::Update(window, dt);
 
-    static int simulationFramerate = 10;
-    // --- Step simulation ---
-    if (simulationDeltaClock.getElapsedTime().asSeconds() >=
-        1.0 / simulationFramerate) {
-      sim_window.stepSimulation();
-      simulationDeltaClock.restart();
-    }
-    sim_window.stepWindow(dt.asSeconds());
-    sim_window.interpolate(simulationDeltaClock.getElapsedTime().asSeconds() *
-                           simulationFramerate);
+    static int simulationFramerateSlider =
+        sim_window.getSettings().simulation_framerate;
 
-    // --- Render simulation to its off-screen texture ---
     sim_window.renderSimulation();
+    sim_window.step(dt.asSeconds());
 
-    // --- Draw everything ---
     window.clear();
 
-    // Draw the simulation texture inside ImGui
-    ImGui::Begin("Simulation View", nullptr, ImGuiWindowFlags_AlwaysAutoResize);
-    ImGui::Image(sim_window.getTexture(),
-                 Vector2f(sim_window_size));  // display the RenderTexture
+    // Main Menu
+    ImGui::BeginMainMenuBar();
+    ImGui::Text("Automaton Visualiser");
+    if(ImGui::Button("Reload")){
+      reload = true;
+    }
+    ImGui::EndMainMenuBar();
+
+    // View
+    ImGui::Begin("View", nullptr, ImGuiWindowFlags_AlwaysAutoResize);
+    ImGui::Image(sim_window.getTexture());
+    ImGui::End();
 
     // Control panel
+    ImGui::Begin("Control Panel");
     ImGui::SameLine();
     ImGui::BeginGroup();
     ImGui::Text("Simulation running...");
 
-    if (ImGui::SliderInt("Framerate", &simulationFramerate, 0, 20)) {
-      sim_window.setSimulationFramerate(simulationFramerate);
+    if (ImGui::SliderInt("Framerate", &simulationFramerateSlider, 0, 20)) {
+      sim_window.setSimulationFramerate(simulationFramerateSlider);
     }
 
-    if (sim_window.isPaused()) {
+    if (sim_window.getIsPaused()) {
       if (ImGui::Button("Run"))
         sim_window.setPaused(false);
     } else {
@@ -97,13 +86,29 @@ int main() {
     // Render ImGui on top of the window
     ImGui::SFML::Render(window);
 
-    sf::sleep(sf::seconds(1.f / WINDOW_FRAMERATE -
+    sf::sleep(sf::seconds(1.f / IMGUI_WINDOW_FRAMERATE -
                           deltaClock.getElapsedTime().asSeconds()));
 
     window.display();
   }
 
-  // Cleanup
+  return Reload;
+}
+
+int main() {
+  srand(time(NULL));
+  sf::RenderWindow window(sf::VideoMode(1000, 1000), "Simulation with ImGui");
+  if (!ImGui::SFML::Init(window)) {
+    return 0;
+  }
+  SimulationResult result = Reload;
+
+  while (result == Reload) {
+    SimulationWindow sim_window = build_simulation_window();
+    result = run(window, sim_window);
+  }
+
+  window.close();
   ImGui::SFML::Shutdown();
 
   return 0;

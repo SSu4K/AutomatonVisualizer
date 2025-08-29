@@ -21,8 +21,7 @@ class SimulationRenderer{
     std::vector<sf::Color> color_buffer[2];
 
     ColorInterpolationFunction interp_func =
-      //utils::powrp<6>;
-      utils::lerp;
+      utils::powrp<6>;
 
     public:
     sf::VertexArray vertex_array;

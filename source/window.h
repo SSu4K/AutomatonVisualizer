@@ -11,11 +11,10 @@
 #include "simulation/simulation.h"
 #include "utils.hpp"
 
-#define DEFAULT_FRAMERATE 60
 #define DEFAULT_SIMULATION_FRAMERATE 10
 
 struct WindowSettings {
-  int framerate;
+  sf::Vector2i window_size;
   int simulation_framerate;
   bool show_grid;
   float max_view_speed;
@@ -23,7 +22,8 @@ struct WindowSettings {
 };
 
 const WindowSettings DEFAULT_WINDOW_SETTINGS = {
-    DEFAULT_FRAMERATE, DEFAULT_SIMULATION_FRAMERATE, false, 100, 2000};
+    {800, 800}, DEFAULT_SIMULATION_FRAMERATE, false, 100,
+    2000};
 
 class SimulationWindow {
  private:
@@ -32,13 +32,10 @@ class SimulationWindow {
   sf::RenderTexture renderTexture;
   sf::Sprite renderSprite;
   sf::View view;
+  sf::Clock deltaClock;
 
   InputSystem inputSystem;
-
   WindowSettings settings;
-
-  int frames_per_step;
-  int frame_counter;
 
   sf::Vector2f direction_vector;
   Body::Body view_body;
@@ -46,27 +43,25 @@ class SimulationWindow {
   function<sf::Color(const sf::Color&, const sf::Color&, float)> interp_func =
       utils::powrp<6>;
 
-  bool paused;
+  bool isPaused;
 
-  void update_view();
   void handle_input();
 
  public:
   SimulationWindow() = default;
-  SimulationWindow(const sf::Vector2i window_size,
-                   const shared_ptr<Simulation> simulation,
+  SimulationWindow(const shared_ptr<Simulation> simulation,
                    const WindowSettings& settings);
-  SimulationWindow(const sf::Vector2i window_size,
-                   const shared_ptr<Simulation> simulation);
-  void step();
+  SimulationWindow(const shared_ptr<Simulation> simulation);
   void stepSimulation();
   void stepWindow(float dt);
   void interpolate(float t);
+  void step(float dt);
+
   void renderSimulation();
 
   const sf::Texture& getTexture() const;
   WindowSettings getSettings() const;
-  bool isPaused() const;
+  bool getIsPaused() const;
 
   void setSimulationFramerate(float framerate);
   void setPaused(bool state);
