@@ -1,7 +1,7 @@
 #include "simulation.h"
 #include "automaton/automaton.hpp"
 
-void Simulation::random_fill() {
+void Simulation::random_fill(double fill) {
   for (size_t i = 0; i < automaton.get_cell_count(); i++) {
     bool value = double(rand()) / RAND_MAX < fill;
     automaton.reset_cell(i);
@@ -26,10 +26,8 @@ void Simulation::clear_buffers() {
 }
 
 Simulation::Simulation(size_vector size,
-                       shared_ptr<Rule<bool>> rule,
-                       double fill)
-    : fill(fill) {
-  MooreLattice2D<bool> lattice(size);
+                       shared_ptr<Rule<bool>> rule){
+  MooreLattice2D<bool> lattice(size, true);
   automaton = Automaton<bool>(make_shared<MooreLattice2D<bool>>(lattice), rule);
   cell_count = size[0] * size[1];
   value_buffer = new bool[cell_count];
@@ -49,15 +47,18 @@ void Simulation::step(size_t time) {
   update_buffers();
 }
 
+void Simulation::set_cell_value(size_t x, size_t y, bool value){
+  int width = automaton.get_size()[0];
+  int height = automaton.get_size()[1];
+  int i = utils::clampi(x, 0, width-1) + width*utils::clampi(y, 0, height-1);
+
+  automaton.set_cell_value(i, value);
+}
+
 size_vector Simulation::get_size() const{
   return automaton.get_size();
 }
 
 size_t Simulation::get_cell_count() const{
   return cell_count;
-}
-
-void Simulation::reset() {
-  random_fill();
-  update_buffers();
 }
