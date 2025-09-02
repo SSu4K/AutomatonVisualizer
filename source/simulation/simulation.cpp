@@ -26,8 +26,8 @@ void Simulation::clear_buffers() {
 }
 
 Simulation::Simulation(size_vector size,
-                       shared_ptr<Rule<bool>> rule){
-  MooreLattice2D<bool> lattice(size, true);
+                       shared_ptr<Rule<bool>> rule, bool clamped){
+  MooreLattice2D<bool> lattice(size, clamped);
   automaton = Automaton<bool>(make_shared<MooreLattice2D<bool>>(lattice), rule);
   cell_count = size[0] * size[1];
   value_buffer = new bool[cell_count];

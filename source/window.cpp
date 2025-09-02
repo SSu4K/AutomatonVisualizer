@@ -46,7 +46,7 @@ SimulationWindow::SimulationWindow(const shared_ptr<Simulation> simulation, cons
       0.01 * settings.max_view_speed);
   view_body.set_pos(center);
 
-  this->simulation->reset();
+  //this->simulation->reset();
 }
 
 SimulationWindow::SimulationWindow(const shared_ptr<Simulation> simulation, const WindowSettings& settings)
@@ -65,7 +65,7 @@ void SimulationWindow::handle_input() {
     togglePaused();
   }
   if (inputSystem.resetAction.wasReleasedThisFrame()) {
-    simulation->reset();
+    //simulation->reset();
     renderer.update_vertex_array(0);
   }
 

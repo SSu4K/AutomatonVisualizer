@@ -14,7 +14,7 @@ class Simulation {
   bool* loaded_buffer;
   int* age_buffer;
 
-  Simulation(size_vector size, shared_ptr<Rule<bool>> rule);
+  Simulation(size_vector size, shared_ptr<Rule<bool>> rule, bool clamped = false);
 
   void step();
   void step(size_t time);
