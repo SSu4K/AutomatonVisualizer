@@ -30,7 +30,6 @@ class SimulationWindow {
   shared_ptr<Simulation> simulation;
   SimulationRenderer renderer;
   sf::RenderTexture renderTexture;
-  sf::Sprite renderSprite;
   sf::View view;
   sf::Clock deltaClock;
 

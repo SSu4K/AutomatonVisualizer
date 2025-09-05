@@ -29,7 +29,6 @@ SimulationWindow::SimulationWindow(const shared_ptr<Simulation> simulation, cons
       settings(settings),
       isPaused(false) {
   renderTexture.create(settings.window_size.x, settings.window_size.y);
-  renderSprite.setTexture(renderTexture.getTexture());
   view = renderTexture.getDefaultView();
 
   sf::Vector2f simulation_size = renderer.get_simulation_size();
