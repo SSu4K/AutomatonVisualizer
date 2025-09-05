@@ -40,6 +40,44 @@ bool ui::InputFloatBouded(const char* label,
   return false;
 }
 
+bool ui::GradientPicker(const char* label, Gradient &v){
+  std::vector<std::array<float, 4>> colors;
+  for(auto node: v.nodes){
+    colors.push_back({node.color.r/255.0f, node.color.g/255.0f, node.color.b/255.0f, node.color.a/255.0f});
+  }
+  bool update = false;
+  for(size_t i=0; i<colors.size(); i++){
+    ImGui::BeginGroup();
+    string label = "Node #"+std::to_string(i+1);
+    if(ImGui::ColorEdit3(label.c_str(), &(colors[i][0]), ImGuiColorEditFlags_NoTooltip)){
+      update |= true;
+    }
+    ImGui::SameLine();
+    ImGui::PushID(i);
+    if(ImGui::Button("Remove")){
+      colors.erase(colors.begin() + i, colors.begin() + i + 1);
+      i--;
+      update |= true;
+    }
+    ImGui::PopID();
+    ImGui::EndGroup();
+  }
+  if(ImGui::Button("Add##AddGradientButton")){
+    colors.push_back({0, 0, 0, 0});
+    update |= true;
+  }
+
+  if(update){
+    std::vector<sf::Color> updated_colors;
+    for(auto color: colors){
+      updated_colors.push_back(sf::Color(color[0]*255, color[1]*255, color[2]*255, color[3]*255));
+    }
+    v = Gradient(updated_colors, v.get_mode());
+
+  }
+  return true;
+}
+
 bool ui::showViewUI() {
   ImGui::Begin("View", nullptr, ImGuiWindowFlags_AlwaysAutoResize);
   ImGui::Image(sim_window->getTexture());

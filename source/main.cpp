@@ -20,6 +20,10 @@ typedef enum {
 SimulationSettings simulationSettings;
 shared_ptr<SimulationWindow> sim_window;
 
+Gradient gradient({sf::Color::Yellow, sf::Color::Red, sf::Color::Magenta,
+                    sf::Color::Yellow},
+                   PERIODIC);
+
 void build_simulation_window();
 
 SimulationResult run(RenderWindow& window);
@@ -116,6 +120,10 @@ SimulationResult run(RenderWindow& window) {
     ImGui::BeginMainMenuBar();
     ImGui::Text("Automaton Visualiser");
     ImGui::EndMainMenuBar();
+
+    ImGui::Begin("TMP");
+    ui::GradientPicker("Picker", gradient);
+    ImGui::End();
 
     bool b = true;
     b &= ui::showViewUI();

@@ -29,8 +29,8 @@ class GradientBase: public ColorSource{
 };
 
 class Gradient: public GradientBase{
-    vector<ColorNode> nodes;
     public:
+    vector<ColorNode> nodes;
     Gradient(Color color1, Color color2, GradnientMode mode = CLAMPED);
     Gradient(vector<Color> colors, GradnientMode mode = CLAMPED);
     Gradient(vector<ColorNode> nodes, GradnientMode mode = CLAMPED);

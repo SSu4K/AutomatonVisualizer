@@ -2,6 +2,7 @@
 #include <imgui-SFML.h>
 #include <imgui.h>
 #include "window.h"
+#include "colors/gradient.h"
 
 struct SimulationSettings {
   int simulation_width = 100;
@@ -33,6 +34,9 @@ bool InputFloatBouded(const char* label,
                       float step_fast = 0,
                       char* format = (char*)"%.3f",
                       ImGuiInputTextFlags flags = 0);
+
+bool GradientPicker(const char* label, Gradient &v);
+
 bool showViewUI();
 bool showControlPanelUI();
 bool showSettingsUI();
