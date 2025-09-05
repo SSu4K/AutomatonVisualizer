@@ -31,7 +31,7 @@ Gradient::Gradient(Color color1, Color color2, GradnientMode mode){
 
 Gradient::Gradient(vector<Color> colors, GradnientMode mode){
     this->mode = mode;
-    double increment = 1.0/(colors.size());
+    double increment = 1.0/(colors.size()-1);
     for(size_t i=0; i<colors.size()-1; i++){
         nodes.push_back({colors[i], i*increment});
     }

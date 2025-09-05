@@ -50,7 +50,9 @@ bool ui::GradientPicker(const char* label, Gradient& v) {
                       node.color.b / 255.0f, node.color.a / 255.0f});
   }
 
+  ImGui::Text(label);
   ImGui::Image(gradient_texture.getTexture());
+  ImGui::Text("Color nodes:");
 
   bool update = false;
   for (size_t i = 0; i < colors.size(); i++) {
@@ -71,7 +73,7 @@ bool ui::GradientPicker(const char* label, Gradient& v) {
     ImGui::EndGroup();
   }
   if (ImGui::Button("Add##AddGradientButton")) {
-    colors.push_back({0, 0, 0, 0});
+    colors.push_back({0, 0, 0, 1});
     update |= true;
   }
 
@@ -84,23 +86,34 @@ bool ui::GradientPicker(const char* label, Gradient& v) {
     v = Gradient(updated_colors, v.get_mode());
   }
 
-  sf::Vector2f windowSize(ImGui::GetContentRegionAvail().x, 30.f);
+  sf::Vector2f windowSize(ImGui::GetContentRegionAvail().x, 40.f);
+  float triangle_height = 10;
+  float triangle_width = 10;
+
   if (!is_texture_created || gradient_texture.getSize().x != windowSize.x) {
     is_texture_created = true;
     gradient_texture.create(static_cast<unsigned int>(windowSize.x),
                             static_cast<unsigned int>(windowSize.y));
   }
 
-  sf::VertexArray array(sf::TriangleStrip, 2 * v.nodes.size());
+  sf::VertexArray gradient_array(sf::TriangleStrip, 2 * v.nodes.size());
+  sf::VertexArray triangle_array(sf::Triangles, 3 * v.nodes.size());
+
   for (size_t i = 0; i < v.nodes.size(); i++) {
     float x = v.nodes[i].pos * windowSize.x;
     sf::Color col = v.nodes[i].color;
-    array[2 * i] = sf::Vertex({x, 0.f}, col);
-    array[2 * i + 1] = sf::Vertex({x, windowSize.y}, col);
+    gradient_array[2 * i] = sf::Vertex({x, 0.f}, col);
+    gradient_array[2 * i + 1] = sf::Vertex({x, windowSize.y-triangle_width}, col);
+
+    triangle_array[3*i] = sf::Vertex({x, windowSize.y-triangle_width}, col);
+    triangle_array[3*i+1] = sf::Vertex({x - triangle_width, windowSize.y}, col);
+    triangle_array[3*i+2] = sf::Vertex({x + triangle_width, windowSize.y}, col);
+
   }
 
   gradient_texture.clear(sf::Color::Transparent);
-  gradient_texture.draw(array);
+  gradient_texture.draw(gradient_array);
+  gradient_texture.draw(triangle_array);
   gradient_texture.display();
 
   return true;
