@@ -38,6 +38,7 @@ class SimulationWindow {
 
   sf::Vector2f direction_vector;
   Body::Body view_body;
+  QuantizedGradient gradient;
 
   function<sf::Color(const sf::Color&, const sf::Color&, float)> interp_func =
       utils::powrp<6>;
@@ -65,6 +66,8 @@ class SimulationWindow {
   void setSimulationFramerate(float framerate);
   void setPaused(bool state);
   void togglePaused();
+
+  void setGradient(const Gradient &g);
 };
 
 #endif

@@ -1,35 +1,20 @@
 #include "window.h"
 #include <iostream>
 
-static Gradient g1({sf::Color::Yellow, sf::Color::Red, sf::Color::Magenta,
+static const Gradient DEFAULT_GRADIENT({sf::Color::Yellow, sf::Color::Red, sf::Color::Magenta,
                     sf::Color::Yellow},
                    PERIODIC);
-static QuantizedGradient g2(g1, 20);
-
-sf::VertexArray generate_grid(const sf::Vector2i size, const sf::Color color) {
-  sf::VertexArray grid;
-  grid.setPrimitiveType(sf::PrimitiveType::Lines);
-
-  for (int i = 0; i < size.x; i++) {
-    grid.append({sf::Vector2f(i, 0), color});
-    grid.append({sf::Vector2f(i, size.y), color});
-  }
-
-  for (int i = 0; i < size.y; i++) {
-    grid.append({sf::Vector2f(0, i), color});
-    grid.append({sf::Vector2f(size.x, i), color});
-  }
-  return grid;
-}
 
 SimulationWindow::SimulationWindow(const shared_ptr<Simulation> simulation, const shared_ptr<IVertexArrayBuilder> builder,
                                    const WindowSettings& settings)
     : simulation(simulation),
       renderer(simulation, builder),
       settings(settings),
-      isPaused(false) {
+      isPaused(false), gradient(DEFAULT_GRADIENT, 20) {
   renderTexture.create(settings.window_size.x, settings.window_size.y);
   view = renderTexture.getDefaultView();
+
+  renderer.gradient = gradient;
 
   sf::Vector2f simulation_size = renderer.get_simulation_size();
   float w_ratio = simulation_size.x / float(settings.window_size.x);
@@ -137,4 +122,10 @@ void SimulationWindow::setPaused(bool status) {
 
 void SimulationWindow::togglePaused() {
   isPaused = !isPaused;
+}
+
+
+void SimulationWindow::setGradient(const Gradient &g){
+  gradient = QuantizedGradient(g, 20);
+  renderer.gradient = gradient;
 }

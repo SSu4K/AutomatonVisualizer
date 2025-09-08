@@ -96,5 +96,5 @@ bool ui::GradientPicker(const char* label, Gradient& v) {
   bool update_gradient = gradientEditor(v);
   renderGradientTexture(texture, v, update_gradient);
 
-  return true;
+  return update_gradient;
 }

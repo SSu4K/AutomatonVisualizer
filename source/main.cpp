@@ -21,8 +21,8 @@ SimulationSettings simulationSettings;
 shared_ptr<SimulationWindow> sim_window;
 
 Gradient gradient({sf::Color::Yellow, sf::Color::Red, sf::Color::Magenta,
-                    sf::Color::Yellow},
-                   PERIODIC);
+                   sf::Color::Yellow},
+                  PERIODIC);
 
 void build_simulation_window();
 
@@ -54,18 +54,12 @@ void build_simulation_window() {
   BSRule carpet_rule({2, 3, 4, 5}, {});
 
   shared_ptr<BSRule> rule = nullptr;
-  switch (simulationSettings.selected_rule) {
-    case 0:
-      rule = make_shared<BSRule>(6152);
-      break;
-
-    case 1:
-      rule = make_shared<BSRule>(carpet_rule);
-      break;
-
-    default:
-      rule = make_shared<BSRule>(6162);
-      break;
+  if (simulationSettings.selected_rule == 0) {
+    rule = make_shared<BSRule>(6152);
+  } else if (simulationSettings.selected_rule == 1) {
+    rule = make_shared<BSRule>(carpet_rule);
+  } else {
+    rule = make_shared<BSRule>(6162);
   }
 
   Simulation simulation(size, rule, simulationSettings.clamped);
@@ -93,8 +87,9 @@ void build_simulation_window() {
   WindowSettings settings = DEFAULT_WINDOW_SETTINGS;
   sim_window = make_shared<SimulationWindow>(
       std::make_shared<Simulation>(simulation), builder, settings);
-}
 
+  sim_window->setGradient(gradient);
+}
 
 SimulationResult run(RenderWindow& window) {
   sf::Clock deltaClock;
@@ -122,7 +117,9 @@ SimulationResult run(RenderWindow& window) {
     ImGui::EndMainMenuBar();
 
     ImGui::Begin("TMP");
-    ui::GradientPicker("Picker", gradient);
+    if (ui::GradientPicker("Picker", gradient)) {
+      sim_window->setGradient(gradient);
+    }
     ImGui::End();
 
     bool b = true;
@@ -137,7 +134,7 @@ SimulationResult run(RenderWindow& window) {
                           deltaClock.getElapsedTime().asSeconds()));
 
     window.display();
-    if(!b){
+    if (!b) {
       break;
     }
   }

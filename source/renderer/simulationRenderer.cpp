@@ -7,7 +7,7 @@ static const QuantizedGradient g2(g1, 20);
 
 static const sf::Color GRID_COLOR = sf::Color::Black;
 
-static sf::Color get_color(bool value, bool loaded, size_t age) {
+sf::Color SimulationRenderer::get_color(bool value, bool loaded, size_t age) {
   if (value && loaded) {
     return sf::Color::White;
   }
@@ -15,15 +15,16 @@ static sf::Color get_color(bool value, bool loaded, size_t age) {
     return sf::Color::Black;
   }
 
-  return g2.get_color_by_int(age);
+  return gradient.get_color_by_int(age);
 }
 
 SimulationRenderer::SimulationRenderer(shared_ptr<Simulation> simulation,
                                        shared_ptr<IVertexArrayBuilder> builder)
     : simulation(simulation),
-        builder(builder),
+      builder(builder),
       segment_size(builder->get_segment_size()),
-      segment_count(simulation->get_cell_count()) {
+      segment_count(simulation->get_cell_count()),
+      gradient(g1, 20) {
   color_buffer_index = 0;
   color_buffer[0].resize(segment_count);
   color_buffer[1].resize(segment_count);
@@ -51,14 +52,16 @@ void SimulationRenderer::push_color_buffer() {
   }
 }
 
-sf::Vector2f SimulationRenderer::get_simulation_size() const{
-    float width = simulation->get_size()[0];
-    float height = simulation->get_size()[1];
+sf::Vector2f SimulationRenderer::get_simulation_size() const {
+  float width = simulation->get_size()[0];
+  float height = simulation->get_size()[1];
 
-    return sf::Vector2f(width*builder->get_x_ratio(), height * builder->get_y_ratio());
+  return sf::Vector2f(width * builder->get_x_ratio(),
+                      height * builder->get_y_ratio());
 }
 
-void SimulationRenderer::render(sf::RenderTarget& target, const Simulation& sim) const{
-    target.draw(vertex_array);
-    target.draw(net);
+void SimulationRenderer::render(sf::RenderTarget& target,
+                                const Simulation& sim) const {
+  target.draw(vertex_array);
+  target.draw(net);
 }
