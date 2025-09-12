@@ -50,6 +50,8 @@ class QuantizedGradient: public GradientBase{
     Color get_color_by_float(double t) const override;
     Color get_color_by_int(int t)const override;
     Color get_color()const override;
+
+    size_t get_range()const;
 };
 
 #endif
